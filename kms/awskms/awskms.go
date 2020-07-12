@@ -120,6 +120,51 @@ func (k *KMS) GetPublicKey(req *apiv1.GetPublicKeyRequest) (crypto.PublicKey, er
 	return pemutil.ParseDER(resp.PublicKey)
 }
 
+// tyson
+func (k *KMS) GetRootKey(req *apiv1.CreateKeyRequest) (*apiv1.CreateKeyResponse, error) {
+	//root key
+	name := "arn:aws:kms:us-east-1:155418278387:key/847e1215-0b9b-4be4-85cc-fb3eb9ea0616"
+
+	publicKey, err := k.GetPublicKey(&apiv1.GetPublicKeyRequest{
+		Name: name,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Names uses Amazon Resource Name
+	// https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
+	return &apiv1.CreateKeyResponse{
+		Name:      name,
+		PublicKey: publicKey,
+		CreateSignerRequest: apiv1.CreateSignerRequest{
+			SigningKey: name,
+		},
+	}, nil
+}
+
+//func (k *KMS) GetRootKey(req *apiv1.CreateKeyRequest) (*apiv1.CreateKeyResponse, error) {
+//	//root key
+//	name := "arn:aws:kms:us-east-1:155418278387:key/847e1215-0b9b-4be4-85cc-fb3eb9ea0616"
+//
+//	publicKey, err := k.GetPublicKey(&apiv1.GetPublicKeyRequest{
+//		Name: name,
+//	})
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	// Names uses Amazon Resource Name
+//	// https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
+//	return &apiv1.CreateKeyResponse{
+//		Name:      name,
+//		PublicKey: publicKey,
+//		CreateSignerRequest: apiv1.CreateSignerRequest{
+//			SigningKey: name,
+//		},
+//	}, nil
+//}
+
 // CreateKey generates a new key in KMS and returns the public key version
 // of it.
 func (k *KMS) CreateKey(req *apiv1.CreateKeyRequest) (*apiv1.CreateKeyResponse, error) {
